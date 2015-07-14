@@ -10,10 +10,10 @@ mBowtie = 99, pBowtie = 8, save.files = TRUE)
 }
 \arguments{
 \item{dnaseFile}{DNase-seq file in fastq format. For faster results, bam
-  or bed files with allocated reads can also be processed, if available.}
+  or bed files already obtained by CSEM with allocated reads can also be processed, if available.}
 
 \item{histoneFile}{Histone ChIP-seq file in fastq format. For faster results, bam
-  or bed files with allocated reads can also be processed, if available.}
+  or bed files already obtained by CSEM with allocated reads can also be processed, if available.}
 
 \item{dnaseName}{Name of DNase-seq data or the dataset used as DNase-seq
 data in the model, default set as 'dnase'.}

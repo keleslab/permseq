@@ -9,7 +9,7 @@ pBowtie = 8, save.files = TRUE)
 }
 \arguments{
 \item{histoneFile}{Input histone ChIP-seq file in fastq format. For
-  faster results, bam or bed files with allocated reads can also be processed, if available.}
+  faster results, bam or bed files already obtained by CSEM with allocated reads can also be processed, if available.}
 
 \item{histoneName}{Name of the histone ChIP-seq data. If multiple Histone
 data are used, it needs to be formed into a vector.}

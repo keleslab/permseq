@@ -36,7 +36,7 @@ concordance=TRUE
 
 
 \title{Perm-seq pipeline for Multi-read Analysis of ChIP-seq Data}
-\author[1]{Xin Zeng\footnote{Equally contributed authors}}
+\author[1]{Xin Zeng}
 \author[1]{Ye Zheng$^*$}
 \author[1]{M. Constanza Rojo-Alfaro$^*$}
 \author[1,2]{S\"{u}nd\"{u}z Kele\c{s}}
@@ -47,8 +47,8 @@ concordance=TRUE
 \maketitle
 \tableofcontents
 %\footnotemark[$*$]{Equaly contributed authors}
-
-\section{Overview}\label{section:overview}
+%\footnotetext[*]{Equaly contributed authors}
+\section{Overview}
 
 The overall pipeline allocates multi-reads which are reads that map to multiple positions in the genome and are typically discarded or utilized in a sub-optimal way by standard alignment of ChIP-seq data.\\
 This package can be used to align ChIP-seq data of transcription factors and Histone modifications with punctuated signals (e.g., H3K4me3) with or without prior information. 
@@ -63,29 +63,28 @@ This package can be used to align ChIP-seq data of transcription factors and His
 %<<load,eval=FALSE>>=
 %library(permseq)
 %@
-\section{Prerequisites}\label{section:prerequisites}
+\section{Prerequisites}
 
-The overall pipeline requires R, C++ and Perl. Users need to download and install Bowtie (\href{http://sourceforge.net/projects/bowtie-bio/files/bowtie}{http://sourceforge.net\\/projects/bowtie-bio/files/bowtie/}), CSEM (CSEM $\geq$ 2.3: \href{http://deweylab.biostat.wisc.edu/csem/}{http://deweylab.biostat.wisc.edu/csem/}) and R package \Rpackage{permseq}.
+The overall pipeline requires R, C++ and Perl. Users need to download and install Bowtie (\href{http://sourceforge.net/projects/bowtie-bio/files/bowtie}{http://sourceforge.net\\/projects/bowtie-bio/files/bowtie/}), CSEM (CSEM $>=$ 2.3: \href{http://deweylab.biostat.wisc.edu/csem/}{http://deweylab.biostat.wisc.edu/csem/}) and R package \Rpackage{permseq} (\href{https://github.com/keleslab/permseq}{https://github.com/keleslab/permseq}).
 <<load,eval=FALSE>>=
 library(permseq)
 @
+Besides, to run the \Rpackage{permseq}, users should also install Perl and Perl module, Statistics:Descriptive, which will be called by \Rpackage{permseq}
 
 After downloading Bowtie, users also need create the Bowtie indices (or download them).
-\subsection{Bowtie index}\label{subsection:bowtieIndex}
+\subsection{Bowtie index}
 \begin{enumerate}
 \item Download the Bowtie indices for your genome: The Bowtie website provides pre-built indices for a number of commonly-used genomes. For example, you can download the index for \emph{hg19} genome (UCSC hg19) from the Bowtie website.
 \item Build new Bowtie indices: To create your own (\emph{hg19}, for example), you can run: 
-\vskip 0.5em
 \begin{verbatim}
 bowtie-build chr19.fa,chr22.fa hg19
 \end{verbatim}
-\vskip 0.5em
 The first argument "chr19.fa,chr22.fa" is a comma-separated list of FASTA files containing the reference sequences to be aligned (only human chromosome 19 and chromosome 22 in this case) and \texttt{hg19} is the basename of the index files to be created.
 \end{enumerate}
 Please refer to  Bowtie documentation for more options and details.
 
 %\newpage
-\section{\Rpackage{permseqExample} Package}\label{section:permseqExamplePackage}
+\section{\Rpackage{permseqExample} Package}
 A \Rpackage{permseqExample} package is available with demo data so the users can test \Rpackage{permseq} in a reduced period of time using the given script and compare results with the R images included. Bowtie indices are also available.
 We first created a sample reduced genome using 1\% of the human chromosome 22 from the \emph{hg19} assembly. The original ChIP, DNase, and Histone ChIP-seq fastq files were downsampled to contain reads that  map to our sample reduced genome. These datasets are:
 \begin{enumerate}
@@ -95,8 +94,7 @@ We first created a sample reduced genome using 1\% of the human chromosome 22 fr
 \item \emph{H3k4me1\_partial.fastq}: H3kme1 Histone ChIP-seq fastq file from GM12878.
 \end{enumerate}
 We will use these data in the rest of this vignette. We refer the reader to the \Rpackage{permseqExample} package help manual for more usage details.
-
-\section{Workflow}\label{section:workFlow}
+\section{Workflow}
 The \Rpackage{permseq} package consists of prior module generation, prior generation, and multi-read allocation. Prior module generation consists of processing of the data for fitting the prior model and it is separated into different functions depending on the type of prior data that the user wants to use. \\
 In summary, the three steps are:
 \begin{enumerate}
@@ -137,7 +135,7 @@ Input Data & Functions & Section \\
 \end{table}
 
  For the enumerated cases in Table \ref{table:section},  each function will take as input the result of the previous one. Therefore, these functions should be executed in the same order as shown in Table \ref{table:section}.\\
-In each step, \Rpackage{permseq} will return an S4 \emph{Prior} class, which is described in section \ref{section:priorClass}. This S4 class summarizes the  analysis information and it will be updated in each step.\\\\
+In each step, \Rpackage{permseq} will return an S4 \emph{Prior} class, which is described in section 5. This S4 class summarizes the  analysis information and it will be updated in each step.\\\\
 To align different sequencing data (ChIP-seq, Input ChIP-seq, DNase-seq, and Histone ChIP-seq), \Rpackage{permseq} utilizes the following Bowtie parameters:
 \begin{verbatim}
 bowtie -q -v 2 -a -m 99 -p 8 --sam hg19 data.fastq data.sam
@@ -145,7 +143,7 @@ bowtie -q -v 2 -a -m 99 -p 8 --sam hg19 data.fastq data.sam
 The package allows the user to change the \texttt{-v}, \texttt{-m}, and \texttt{-p} options in Bowtie, which are set to 2 (alignments may have no more than 2 mismatches), 99 (suppress alignments for a particular read if more than 99 reportable alignments exist for it) and 8 (launch 8 parallel search threads) by default, respectively.\\\
 The other arguments are:
 \begin{enumerate}
-\item \texttt{hg19}: Name of the Bowtie index obtained as described in section \ref{subsection:bowtieIndex}, given as an argument in \Rpackage{permseq}.
+\item \texttt{hg19}: Name of the Bowtie index obtained as described in section 2.1, given as an argument in \Rpackage{permseq}.
 \item \texttt{data.fastq}: A comma-separated list of file names containing the
   reads in FASTQ format, given as an argument in \Rpackage{permseq}.
 \item \texttt{data.sam}: Aligned file in SAM format (output file).
@@ -193,7 +191,7 @@ The main structure of the algorithm with DNase-seq and Histone ChIP-seq driven p
 \end{tikzpicture}
 }
 %\caption{\fcolorbox{black}{SeaGreen!50!}{\rule{0pt}{4pt}\rule{4pt}{0pt}} \texttt{priorProcess}, \fcolorbox{black}{cyan!70!}{\rule{0pt}{4pt}\rule{4pt}{0pt}} \texttt{priorGenerate} and \fcolorbox{black}{blue!60!}{\rule{0pt}{4pt}\rule{4pt}{0pt}} \texttt{readAllocate}. Rectangle shapes indicate data (input/output) and trapezoids indicate models/methods.}
-%\caption{Rectangle shapes indicate data (input/output) and trapezoids indicate models/methods.}
+\caption{Rectangle shapes indicate data (input/output) and trapezoids indicate models/methods.}
 \label{figure:pipeline}
 \end{figure}
 
@@ -207,21 +205,21 @@ In the Perm-seq model, Histone ChIP-seq read counts are converted into trinary i
   \end{cases}
 \]
 for $i = 1,\ldots,h$, where $h$ is the number of Histone ChIP-seq data sets given by the user.\\\\
-In what follows, we will use the default options for the function arguments: \Rcode{fragL}, \Rcode{AllocThres}, \Rcode{capping}, \Rcode{vBowtie}, \Rcode{mBowtie}, \Rcode{pBowtie}, and \Rcode{save.files}. For more options, please refer to section \ref{section:moreOptions}.
+In what follows, we will use the default options for the function arguments: \Rcode{fragL}, \Rcode{AllocThres}, \Rcode{capping}, \Rcode{vBowtie}, \Rcode{mBowtie}, \Rcode{pBowtie}, and \Rcode{save.files}. For more options, please refer to section 6.
 
-\subsection{Creating prior module based on multiple data sets}\label{subsection:priorModule}
+\subsection{Creating prior module based on multiple data sets}
 
 This section describes how to create prior module from your DNase-seq and/or Histone ChIP-Seq data. \\
 Creating prior module involves the following tasks.
 \begin{enumerate}
 \item Align DNase-seq and Histone ChIP-seq reads with Bowtie. SAM files are generated as a result for each input dataset.
 \item Allocate multi-reads using CSEM. BAM files are generated as a result for each input dataset.
-\item BAM output from CSEM is converted to BED format and a subset of reads with high allocation score is selected to avoid generation of spurious signals. In the applications presented in \cite{Xin}, reads with allocation score larger than 900 are used (parameter \texttt{AllocThres} set as default to 900).
+\item BAM output from CSEM is converted to BED format and a subset of reads with high allocation score is selected to avoid generation of spurious signals. In the applications presented in %\cite{Xin}, reads with allocation score larger than 900 are used (parameter \texttt{AllocThres} set as default to 900).
 \item Generate nucleotide-level read counts for the DNase-seq and Histone ChIP-seq by essentially counting the number of reads overlapping each nucleotide.
 \item Partition the genome into multiple segments (based on the DNase counts and/or trinary Histone ChIP-Seq indicators).
 \end{enumerate}
 
-\subsubsection{Creating prior module with only DNase-seq data}\label{subsubsection:onlyDnase}
+\subsubsection{Creating prior module with only DNase-seq data}
 
 <<priorProcess_DNase,eval=FALSE>>=
 priorProcess_DNase <- priorProcess(dnaseFile="DNase_partial.fastq", histoneFile=NULL,
@@ -237,36 +235,30 @@ priorProcess_DNase <- priorProcess(dnaseFile="DNase_partial.fastq", histoneFile=
 % bowtieIndex="./chr22_partial", csemDir="./csem-2.3", bowtieDir="./bowtie-1.1.1",
 % vBowtie=2, mBowtie=99, pBowtie=8, save.files=TRUE)
 %\end{verbatim}
-This will create a \emph{Prior} S4 object which contains the main information that needs to be inherited to continue the analysis. For more details about the \emph{Prior} object, refer to section \ref{section:workFlow} or the R help manual of the package. \\
+This will create a \emph{Prior} S4 object which contains the main information that needs to be inherited to continue the analysis. For more details about the \emph{Prior} object, refer to section 4 or the R help manual of the package. \\
 The main slots of the Prior object type output  are:
 \begin{enumerate}
 \item \textbf{dnaseKnots}: Vector of the knot points for the B-spline functions used in the fit.
-
-<<dnaseKnots,eval=FALSE>>=
-priorProcess_DNase@dnaseKnots
-#[1]  594 2029 3440
-@ 
-
+\begin{verbatim}
+> priorProcess_DNase@dnaseKnots
+[1]  594 2029 3440
+\end{verbatim}
 They are the 90, 99, and 99.9th percentiles of DNase-seq read count distribution.
 \item \textbf{dnaseThres}: Vector of DNase-seq groups. Groups are constructed based on nucleotide level counts, except the first group that will include counts equal to 0, 1 and 2, and the last group that will include counts larger than the 99.9th percentile of the read count distribution.
-
-<<dnaseThres,eval=FALSE>>=
-priorProcess_DNase@dnaseThres
-#[1] 2 3 4 5 6 ... 3435 3436 3438 3440 3794
-@ 
-
+\begin{verbatim}
+> priorProcess_DNase@dnaseThres
+[1] 2 3 4 5 6 ... 3435 3436 3438 3440 3794
+\end{verbatim}
 DNase-seq counts smaller or equal to 2 are clustered into one group; counts equal to 3 are clustered into another group and so on. Positions with counts larger than 3440 are clustered into one group. Specifically, the corresponding count is set at the 99.95th percentile of the read count distribution for model fitting, e.g., 3794 in this specific case.
 
 \item \textbf{posLoc\_bychr}: List by chromosome.\\ Each element lists a file named chr$i$\_dnase\_one\_dnase\_positions\_cluster.txt (in the example for this vignette, this list is of length one since we are only using part of chr 22). This file encodes which segments of the genome are in which prior group, based on DNase-seq read counts. Each line corresponds to one chromosome, starting with the chromosome ID, followed by pairs of segment lengths and group IDs: 
-\vskip 0.5em
 \begin{verbatim}
 chr22_partial    5    574    1    575    2    576 ...
 \end{verbatim}
-\vskip 0.5em
 The first segment of chr22\_partial is in group 574 according to \Rcode{dnaseThres}. In other words, DNase-seq counts equal to 574 are clustered into the same group, and the number of positions that belongs to group 574 is 5.
 \end{enumerate}
 
-\subsubsection{Creating prior module with DNase-seq and Histone ChIP-seq data}\label{subsubsection:dnaseHistone}
+\subsubsection{Creating prior module with DNase-seq and Histone ChIP-seq data}
 
 <<priorProcess_DNaseHistone,eval=FALSE>>=
 priorProcess_DNaseHistone <- priorProcess(dnaseFile="DNase_partial.fastq",
@@ -285,23 +277,21 @@ priorProcess_DNaseHistone <- priorProcess(dnaseFile="DNase_partial.fastq",
 % bowtieDir="./bowtie-1.1.1", vBowtie=2, mBowtie=99, pBowtie=8, save.files=TRUE)
 %\end{verbatim}
 This function will create a \emph{Prior} S4 object which contains the main information that needs to be inherited to continue the analysis.\\
-The main slot that is different from the ones described in section \ref{subsubsection:onlyDnase} is \textbf{posLoc\_bychr}, which is a list by chromosome.\\ 
+The main slot that is different from the ones described in section 4.1.1 is \textbf{posLoc\_bychr}, which is a list by chromosome.\\ 
 Similarly, each element points to a file
 chr$i$\_dnase\_dnase\_histone\_positions\_cluster.txt.
 This file encodes which segments of the genome are in which group, based on DNase-seq counts and Histone trinary indicators.  Each line corresponds to one chromosome, starting with the chromosome ID, followed by pairs of segment lengths and group IDs:
-\vskip 0.5em
 \begin{verbatim}
 chr22_partial    5    574_0_1    1    575_0_1    2    576_0_1    1 ... 
 \end{verbatim}
-\vskip 0.5em 
-The first segment of chr22\_partial is in group 574\_0\_1. Each group is based on the DNase-seq reads count and the histones trinary indicator. Positions within group 574\_0\_1 have 574  DNase-seq reads aligned to them, and H2az histone ChIP-seq reads counts at these positions are smaller than the 90th percetile resulting in the number ``0'' here . Besides, H3k4me1 histone ChIP-seq reads count is larger than the 90th percentile and smaller or equal than the 99th percentile. Thus the indicator for it is ``1''. Moreover, the number of positions that belong to group 574\_0\_1 is 5.
+The first segment of chr22\_partial is in group 574\_0\_1. Each group is based on the DNase-seq reads count and the histones trinary indicator. Positions within group 574\_0\_1 have 574  DNase-seq reads aligned to them, and H2az histone ChIP-seq reads counts at these positions are smaller than the 90th percetile resulting in the number \"0\" here . Besides, H3k4me1 histone ChIP-seq reads count is larger than the 90th percentile and smaller or equal than the 99th percentile. Thus the indicator for it is \"1\". Moreover, the number of positions that belong to group 574\_0\_1 is 5.
 
-\subsubsection{Creating prior module with only Histone ChIP-seq data}\label{subsubsection:onlyHistone}
+\subsubsection{Creating prior module with only Histone ChIP-seq data}
 Utilizing only histone ChIP-seq data requires the following two steps.
 \begin{enumerate}
 \item  \Rcode{priorHistone\_init}: This function processes histone ChIP-seq datasets and generates plots depicting marginal relationship of each histone ChIP-seq with the ChIP-seq data to be analyzed. In these marginal plots, histone ChIP-seq counts are not converted into trinary counts. Instead, they are treated as numerical variables as for the DNase-seq case. 
 Based on these plots, the user specifies the  histone ChIP-seq data to be used for prior construction. We recommend to choose the histone that seems most correlated with the ChIP read.
-\item \Rcode{priorHistone\_multi}: This function generates prior from the selected histone ChIP-seq data using it as a numerical variable and applying the prior construction framework of Section \ref{subsubsection:onlyDnase}.
+\item \Rcode{priorHistone\_multi}: This function generates prior from the selected histone ChIP-seq data using it as a numerical variable and applying the prior construction framework of Section 4.1.1.
 \end{enumerate}
 For example, we  can utilize two histone ChIP-seq datasets, namely, H2az and K3k04me1 as follows:
 <<priorHistone_init,eval=FALSE>>=
@@ -349,17 +339,16 @@ priorHistone_multi <- priorHistone_multi(priorHistone_init, dnaseIndex=1,
 % outfileLoc="./", outfile="twodata_histone")
 %\end{verbatim}
 This function creates a \emph{Prior} S4 object which contains the main information that needs to be inherited to continue the analysis.\\
-The main slot that is different from the ones described in sections \ref{subsubsection:onlyDnase} and \ref{subsubsection:dnaseHistone} is 
+The main slot that is different from the ones described in sections 4.1.1 and 4.1.2 is 
 \textbf{dnaseName}. Previously, \textbf{dnaseName} was the name of the DNase data but when DNase data is not available, it will be the name of the Histone ChIP-seq data used as DNase:
-<<dnaseName,eval=FALSE>>=
-priorHistone_multi@dnaseName
-#[1] "H2az_partial"
-@ 
-
+\begin{verbatim}
+> priorHistone_multi@dnaseName
+[1] "H2az_partial"
+\end{verbatim}
 In this case, knots (\textbf{dnaseKnots}) and groups (\textbf{dnaseThres}) are calculated based on the given Histone ChIP-seq data.
-\subsection{Generating priors}\label{subsection:generatePrior}
+\subsection{Generating priors}
 
-Using the \emph{Prior} object created in section \ref{subsection:priorModule}, the user can run the \Rcode{priorGenerate} function of \Rpackage{permseq} to generate priors.\\
+Using the \emph{Prior} object created in section 4.1, the user can run the \Rcode{priorGenerate} function of \Rpackage{permseq} to generate priors.\\
 The internal structure of the function is:
 \begin{enumerate}
 \item Align ChIP-seq reads using Bowtie. SAM files are obtained as a result for each ChIP data.
@@ -369,7 +358,7 @@ The internal structure of the function is:
 \item Generate as many prior files named "prior\_chipFile.txt" as ChIP files given.
 \end{enumerate}
 
-For example, we can use the prior module from section \ref{subsubsection:onlyDnase}  and one ChIP\_partial dataset allowing maximum 6 Histone ChIP-seq datasets. 
+For example, we can use the prior module from section 4.1.1 and one ChIP\_partial dataset allowing maximum 6 Histone ChIP-seq datasets. 
 <<priorGenerate_DNase,eval=FALSE>>=
 priorGenerate_DNase <- priorGenerate(priorProcess_DNase,
  chipFile="ChIP_partial.fastq", maxHistone=6, outfileLoc="./")
@@ -379,25 +368,23 @@ priorGenerate_DNase <- priorGenerate(priorProcess_DNase,
 % chipFile="ChIP_partial.fastq", maxHistone=6, outfileLoc="./")
 %\end{verbatim}
 
-This function updates the \emph{Prior} object created in section  \ref{subsection:priorModule}.\\ 
+This function updates the \emph{Prior} object created in section 4.1.\\ 
 It is important to emphasize that \Rcode{chipFile} can be a vector of fastq files with different replicates but they should all be from the same transcription factor of the same experiment.\\
 The main slot that is updated in this step is \textbf{prior}, which is a list of prior files, prior\_chip$i$.txt, for each ChIP-seq datasets. In our case, we only use one ChIP\_partial.fastq file thus only one prior file is created. The first line of the prior file starts with the number of total groups, followed by the prior values for each group. Other lines record the number of positions in each group and the corresponding groups (as in the posLoc\_bychr slot):
-\vskip 0.5em
 \begin{verbatim}
 3285 1.00472158441105 1.0048264374093 1.00487973388612 1.00493361889526 ...
 \end{verbatim}
-\vskip 0.5em
 In our example, there are 3285 groups, followed by their prior values for each group.
-\subsection{Allocating multi-reads}\label{subsection:allocateMultireads}
+\subsection{Allocating multi-reads}
 
-Using the \emph{Prior} object created in section \ref{subsection:generatePrior}, the user can run the \Rcode{readAllocate} function of \Rpackage{permseq} to allocate the multi-reads by the prior built in the previous steps and get the final results.\\
+Using the \emph{Prior} object created in section 4.2, the user can run the \Rcode{readAllocate} function of \Rpackage{permseq} to allocate the multi-reads by the prior built in the previous steps and get the final results.\\
 Allocating the multi-reads of ChIP-seq involves the following steps. 
 \begin{enumerate}
 \item Allocate ChIP-seq multi-reads based the prior probability using CSEM. BAM files are generated for each ChIP data.
 \item Convert BAM file into other format specified under the \Rcode{outputFormat} argument. We can select the format to be tagAlign or BED.
 \item Select reads from previous file with allocation score higher than \Rcode{ChipThres} .
 \end{enumerate}
-For example, we choose the output format of tagAlign and use the object created in section \ref{subsection:generatePrior}:
+For example, we choose the output format of tagAlign and use the object created in section 4.2:
 <<readAllocate_DNase,eval=FALSE>>=
 readAllocate_DNase <- readAllocate(priorGenerate_DNase, outfileLoc="./",
  outputFormat="tagAlign", ChipThres=500, chipFile=NULL, bowtieIndex=NULL,
@@ -409,22 +396,21 @@ readAllocate_DNase <- readAllocate(priorGenerate_DNase, outfileLoc="./",
 % csemDir=NULL, bowtieDir=NULL, vBowtie=NULL, mBowtie=NULL, pBowtie=NULL, fragL=NULL)
 %\end{verbatim}
 This function creates a final \emph{Prior} S4 object.\\
-If no prior is provided, \emph{readAllocate} will be reduced to CSEM alignment. Users can refer to section \ref{subsection:csem} for allocating multi-reads without prior information (DNase and/or Histone ChIP-seq).
-\section{\emph{Prior} Class}\label{section:priorClass}
+If no prior is provided, \emph{readAllocate} will be reduced to CSEM alignment. Users can refer to section 6.1 for allocating multi-reads without prior information (DNase and/or Histone ChIP-seq).
+\section{\emph{Prior} Class}
 \emph{Prior} is an S4 class containing information for ChIP-seq alignment.\\
-It will be created in the first step of \Rpackage{permseq}, section \ref{subsection:priorModule}, and then updated with new information when prior is built, section \ref{subsection:generatePrior}, and reads are allocated, section \ref{subsection:allocateMultireads}.
+It will be created in the first step of \Rpackage{permseq}, section 4.1, and then updated with new information when prior is built, section 4.2, and reads are allocated, section 4.3.
 \subsection{names()}
 \Rcode{names()} is equivalent to \Rcode{slotNames()}. It will return the names of all the slots in a \emph{Prior} class object.\\
 For example:
-<<names,eval=FALSE>>=
-names(readAllocate_Dnase)
-# [1] "dnaseName"    "dnaseAlign"   "dnaseKnots"   "dnaseThres"   "posLoc_bychr"
-# [6] "dnaseHistone" "histoneName"  "histoneNum"   "histoneAlign" "histoneGrpL" 
-#[11] "chipName"     "chipNum"      "chipAlign"    "chipSAM"      "chipAllocate"
-#[16] "chipUni"      "chipFormat"   "dataNum"      "fragL"        "bowtieInfo"  
-#[21] "csemDir"      "outfileLoc"   "prior"        "chrom.ref"   
-@
-
+\begin{verbatim}
+> names(readAllocate_Dnase)
+ [1] "dnaseName"    "dnaseAlign"   "dnaseKnots"   "dnaseThres"   "posLoc_bychr"
+ [6] "dnaseHistone" "histoneName"  "histoneNum"   "histoneAlign" "histoneGrpL" 
+[11] "chipName"     "chipNum"      "chipAlign"    "chipSAM"      "chipAllocate"
+[16] "chipUni"      "chipFormat"   "dataNum"      "fragL"        "bowtieInfo"  
+[21] "csemDir"      "outfileLoc"   "prior"        "chrom.ref"   
+\end{verbatim}
 For a detailed description of the slots, please refer to the R help manual of the package.
 \subsection{print()}
 
@@ -447,44 +433,44 @@ For a detailed description of the slots, please refer to the R help manual of th
 \end{itemize}
 \subsection{summary()}
 Given a \emph{Prior} object, \Rcode{summary()} will return the alignment details of DNase-seq, Histone ChIP-seq and/or ChIP-seq files from bowtie.\\
-For example, in section \ref{subsection:allocateMultireads} we only use DNase-seq to build the prior on which we allocate the ChIP-seq reads. The summary for the resulting \emph{Prior} object from readAllocate will be:
-
-<<summary,eval=FALSE>>=
-summary(readAllocate_DNase)
-#***********************************************************************************
-#Alignment Summary for DNase-seq Dataset:
-#***********************************************************************************
-#                                                             Alignment Information
-#Number of reads processed:                                                 1436820
-#Number of reads with at least one reported alignment:                      1436820
-#Percentage of reads with at least one reported alignment(%):                   100
-#Number of reads failed to align:                                                 0
-#Percentage of reads failed to align(%):                                          0
-#Total number of alignment reported:                                        8970293
-#***********************************************************************************
-#Alignment Summary for ChIP-seq Dataset chip_partial:
-#***********************************************************************************
-#                                                             Alignment Information
-#Number of reads processed:                                                  504409
-#Number of reads with at least one reported alignment:                       504409
-#Percentage of reads with at least one reported alignment(%):                   100
-#Number of reads failed to align:                                                 0
-#Percentage of reads failed to align(%):                                          0
-#Total number of alignment reported:                                        3287483
-@ 
+For example, in section 4.3 we only use DNase-seq to build the prior on which we allocate the ChIP-seq reads. The summary for the resulting \emph{Prior} object from readAllocate will be:
+\begin{verbatim}
+> summary(readAllocate_DNase)
+***********************************************************************************
+Alignment Summary for DNase-seq Dataset:
+***********************************************************************************
+                                                             Alignment Information
+Number of reads processed:                                                 1436820
+Number of reads with at least one reported alignment:                      1436820
+Percentage of reads with at least one reported alignment(%):                   100
+Number of reads failed to align:                                                 0
+Percentage of reads failed to align(%):                                          0
+Total number of alignment reported:                                        8970293
+***********************************************************************************
+Alignment Summary for ChIP-seq Dataset chip_partial:
+***********************************************************************************
+                                                             Alignment Information
+Number of reads processed:                                                  504409
+Number of reads with at least one reported alignment:                       504409
+Percentage of reads with at least one reported alignment(%):                   100
+Number of reads failed to align:                                                 0
+Percentage of reads failed to align(%):                                          0
+Total number of alignment reported:                                        3287483
+\end{verbatim}
 
 We use the demo data that includes only the reads that will align to the partial chr22 which explain why bowtie can achieve 100\% alignment here.
 
 \subsection{plot()}
-Given a \emph{Prior} object from \Rcode{priorHistone\_multi}, \Rcode{priorGenerate} or \Rcode{readAllocate}, it will plot DNase read counts versus averaged ChIP read counts using aggregated strategy with three vertical lines indicating the DNase-seq knot points at the 90, 99 and 99.9th percentiles of the DNase-seq read count distribution. The aggragated strategy here means that genomic position with the same DNase-seq read counts are grouped together and ChIP-seq read counts are averaged within each group. Results are shown in Figure \ref{figure:DNase}.
+Given a \emph{Prior} object from \Rcode{priorHistone\_multi}, \Rcode{priorGenerate} or \Rcode{readAllocate}, it will plot DNase read counts versus averaged ChIP read counts using aggregated strategy with three vertical lines indicating the DNase-seq knot points at the 90, 99 and 99.9th percentiles of the DNase-seq read count distribution. The aggragated strategy here means that genomic position with the same DNase-seq read counts are grouped together and ChIP-seq read counts are averaged within each group. The resulting plot is the one in Figure \ref{figure:plot}.
+
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.5]{plot_OnlyDnase.pdf}
-\caption{\texttt{plot(readAllocate\_DNase)}}\label{figure:DNase}
+\includegraphics[width=4in]{plot_OnlyDnase.pdf}
+\caption{\texttt{plot(readAllocate\_DNase)}}\label{figure:plot}
 \end{figure}
 
-\section{More Options}\label{section:moreOptions}
-\subsection{Allocate multi-reads without using - -prior option in CSEM}\label{subsection:csem}
+\section{More Options}
+\subsection{Allocate multi-reads without using - -prior option in CSEM}
 \Rpackage{permseq} also allows the users to allocate multi-reads without using any prior information based on DNase-seq and/or Histone ChIP-seq datasets.\\
 In order to do this, run \Rcode{readAllocate} directly and set \Rcode{object=NULL}:
 <<result,eval=FALSE>>=
@@ -499,7 +485,7 @@ result <- readAllocate(object=NULL, outfileLoc="./", outputFormat=NULL,
 % csemDir="./csem-2.3", bowtieDir="./bowtie-1.1.1", vBowtie=2,
 % mBowtie=99, pBowtie=8, fragL=200)
 %\end{verbatim}
-If no \emph{Prior} object is provided, it is necessary to give the parameter value to \emph{bowtieIndex}, \emph{csemDir}, \emph{bowtieDir}, \emph{vBowtie}, \emph{mBowtie}, \emph{pBowtie}, and \emph{fragL} which  were set as \Rcode{NULL} in section \ref{subsection:allocateMultireads}.\\
+If no \emph{Prior} object is provided, it is necessary to give the parameter value to \emph{bowtieIndex}, \emph{csemDir}, \emph{bowtieDir}, \emph{vBowtie}, \emph{mBowtie}, \emph{pBowtie}, and \emph{fragL} which  were set as \Rcode{NULL} in section 4.3.\\
 We will get BAM file of the allocated read named "ChIP\_partial\_permseq.bam" as the final \emph{permseq} alignment results. Besides, we will also get tagAlign or BED files depending on the option set in \Rcode{outputFormat}.
 \subsection{Save intermediate files}
 
@@ -514,17 +500,17 @@ Some of these files are:
 \item[$\bullet$] BED files with selected scores split by chromosomes used (given in \Rcode{chromList}).
 \end{itemize}
 By setting \Rcode{save.files=FALSE}, \Rpackage{permseq} will remove these intermediate files which will not be used in the latter proceduresr leaving only the BED file with allocated multi-reads and the file under the \Rcode{posLoc\_bychr} slot which is necessary in the next step.\\
-The \emph{Prior} object generated will be the same as in section \ref{subsection:priorModule}.
+The \emph{Prior} object generated will be the same as in section 4.1.
 \subsection{BAM or BED files directly}
 
 If the users have already processed the DNase and/or Histone ChIP-seq datasets and the  BAM files with aligned reads or the BED files with allocated multi-reads are already available, they can be directly given as an argument to the \Rcode{dnaseFile} and \Rcode{histoneFile} of \Rcode{priorProcess} and \Rcode{priorHistone\_init} instead of the fastq files. Using the aligned BAM or BED files, considerably computational time will be saved.\\
-The \emph{Prior} object generated will be the same as in section \ref{subsection:priorModule}.
+The \emph{Prior} object generated will be the same as in section 4.1.
 
 \subsection{Chromosome list}
 
 In \Rpackage{permseq}, it is important that the users provide the \emph{chrList} argument value consistent with the chromosome(s) name(s) in the corresponding .fa file(s). Default is set as \Rcode{NULL} and \Rpackage{permseq} will extract the chromosome names from processed files. For instance, it will use SAM file if DNase input file is in fastq format or BED file if DNase input file is in BAM or BED format.\\
 It is recommendable to give the chromosome list since it will accelerate the process but be sure to make it consistent with the .fa files.\\
-The \emph{Prior} object generated will be the same as in section \ref{subsection:priorModule}.
+The \emph{Prior} object generated will be the same as in section 4.1.
 
 
 
