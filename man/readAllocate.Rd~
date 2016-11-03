@@ -89,8 +89,8 @@ Or if no prior is built and allocate ChIP-seq by CSEM directly, a new
 \item{chipSAM}{Location of aligned ChIP-seq in SAM format.}
 \item{chipAllocate}{Location of the final allocated ChIP-seq output
   by Permseq in BAM format.}
-\item{chipAlignFormat}{Location of the final allocated ChIP-seq
-  output by Permseq in other selected format (tagAlign or bed).}
+\item{chipFormat}{Location of the final allocated ChIP-seq
+  output by Permseqin other selected format (tagAlign or bed).}
 \item{chrList}{Chromsome list.}
 \item{fragL}{Fragment length.}
 \item{bowtieInfo}{List of bowtie information used: bowtieIndex, bowtieDir, vBowtie, mBowtie and pBowtie.}

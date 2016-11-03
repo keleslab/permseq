@@ -134,9 +134,13 @@ readAllocate = function(object = NULL, outfileLoc = "./", outputFormat = NULL, c
     message( "Info: Allocating multi-reads..." )
     for(i in 1:length(chipFile)){
       if(!is.null(bowtieIndex)){
-	CMD <- paste(csemDir, '/run-csem --sam  -p ', pBowtie, ' --prior ', object[['prior']][i], ' ', chipSAM[i], ' ', fragL, ' ', outfile[i], '_permseq', sep='')
+	print("11111111")
+	print(pBowtie)
+        CMD <- paste(csemDir, '/run-csem --sam  -p ', pBowtie, ' --prior ', object[['prior']][i], ' ', chipSAM[i], ' ', fragL, ' ', outfile[i], '_permseq', sep='')
       	system(CMD)
       }else{
+        print("22222222")
+	print(tBWA)
         CMD <- paste(csemDir, '/run-csem --sam  -p ', tBWA, ' --prior ', object[['prior']][i], ' ', chipSAM[i], ' ', fragL, ' ', outfile[i], '_permseq', sep='')
       	system(CMD)
         

@@ -12,10 +12,10 @@
       ChipUniFile <- paste(ChipSamFile[i], '.uni.bed', sep='')
       priorObject[['chipUni']] <- c(priorObject[['chipUni']], paste(OutfileLoc, '/', ChipUniFile, sep=''))
       # Convert SAM to uni-reads BED format      
-      script <- 'find_uni_bed.pl'
-      Fn.Path <- system.file(file.path("Perl", script), package="permseq")
-      CMD <- paste('perl  ', Fn.Path, ' ', priorObject[['chipSAM']][[i]], ' ', OutfileLoc, '/', ChipUniFile, sep='')
-      system(CMD, intern=TRUE)
+      #script <- 'find_uni_bed.pl'
+      #Fn.Path <- system.file(file.path("Perl", script), package="permseq")
+      #CMD <- paste('perl  ', Fn.Path, ' ', priorObject[['chipSAM']][[i]], ' ', OutfileLoc, '/', ChipUniFile, sep='')
+      #system(CMD, intern=TRUE)
     }
   }
   

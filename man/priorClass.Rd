@@ -32,9 +32,13 @@ data. After alignment, positions which have the same DNase-seq read count are cl
 \item{chipFormat}{Location of the final allocated ChIP-seq
   output by Permseq in other selected format (tagAlign or bed).}
 \item{dataNum}{The number of dataset(s) that are used.}
+\item{chrList}{Chromosome list.}
 \item{fragL}{Fragment length.}
 \item{bowtieInfo}{Bowtie information. Includes: location of bowtie
   index, directory where the bowtie is installled, bowtie parameters values -v, -m and -p.}
+\item{bwaInfo}{BWA related information. Includes: location of bwa index,
+  directory where the BWA is installed, BWA parameters values for "bwa aln -n
+  -o -t" and "bwa samse -n".}
 \item{csemDir}{Directory where CSEM was installed.}
 \item{outfileLoc}{Directory to store output files.}
 \item{prior}{Location where the prior files are saved.}

@@ -86,7 +86,7 @@
     #system(paste("rm -rf ", file.sam, sep = ""))
     system(paste("rm -rf *sorted.bam*", sep = ""))
     #system(paste("rm -rf ", '*_', AllocThres, '.bed*', sep = ""))
-    #system(paste("rm -rf *_output_Dnasequantile.txt*", sep = ""))
+    system(paste("rm -rf *_output_Dnasequantile.txt*", sep = ""))
   }
   return(link)
 }

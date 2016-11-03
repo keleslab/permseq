@@ -382,17 +382,17 @@ Allocating the multi-reads of ChIP-seq involves the following steps.
 \begin{enumerate}
 \item Allocate ChIP-seq multi-reads based the prior probability using CSEM. BAM files are generated for each ChIP data.
 \item Convert BAM file into other format specified under the \Rcode{outputFormat} argument. We can select the format to be tagAlign or BED.
-\item Select reads from previous file with allocation score higher than \Rcode{chipThres} .
+\item Select reads from previous file with allocation score higher than \Rcode{ChipThres} .
 \end{enumerate}
 For example, we choose the output format of tagAlign and use the object created in section 4.2:
 <<readAllocate_DNase,eval=FALSE>>=
 readAllocate_DNase <- readAllocate(priorGenerate_DNase, outfileLoc="./",
- outputFormat="tagAlign", chipThres=500, chipFile=NULL, bowtieIndex=NULL,
+ outputFormat="tagAlign", ChipThres=500, chipFile=NULL, bowtieIndex=NULL,
  csemDir=NULL, bowtieDir=NULL, vBowtie=NULL, mBowtie=NULL, pBowtie=NULL, fragL=NULL)
 @
 %\begin{verbatim}
 %readAllocate_DNase <- readAllocate(priorGenerate_DNase, outfileLoc="./",
-% outputFormat="tagAlign", chipThres=500, chipFile=NULL, bowtieIndex=NULL,
+% outputFormat="tagAlign", ChipThres=500, chipFile=NULL, bowtieIndex=NULL,
 % csemDir=NULL, bowtieDir=NULL, vBowtie=NULL, mBowtie=NULL, pBowtie=NULL, fragL=NULL)
 %\end{verbatim}
 This function creates a final \emph{Prior} S4 object.\\

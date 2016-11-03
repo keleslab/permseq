@@ -109,11 +109,11 @@
   # Remove files if saveFiles=FALSE
   if(saveFiles=='FALSE' | saveFiles=='F')
   {
-    #system(paste("rm -rf ", file.bam, sep = ""))
-    #system(paste("rm -rf ", file.sam, sep = ""))
+    system(paste("rm -rf ", file.bam, sep = ""))
+    system(paste("rm -rf ", file.sam, sep = ""))
     system(paste("rm -rf *sorted.bam*", sep = ""))
-    #system(paste("rm -rf ", '*_', AllocThres,'.bed*', sep = ""))
-    #system(paste("rm -rf *_output_Dnasequantile.txt*", sep = ""))
+    system(paste("rm -rf ", '*_', AllocThres,'.bed*', sep = ""))
+    system(paste("rm -rf *_output_Dnasequantile.txt*", sep = ""))
   }
 
   priorObject <- list(histoneKnots = histoneKnots, histoneThres = histoneThres, posLoc_bychr = link, posLoc3_bychr = link_tri, chrList = chrList)

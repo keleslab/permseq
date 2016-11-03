@@ -62,7 +62,7 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
   
   
   #build the reference chromosome file using bowtie-inspect
-  if(!dir.exists(outfileLoc))
+  if(!file.exists(outfileLoc))
     system(paste('mkdir ',outfileLoc,sep=''))
 
   #change into the output folder directory

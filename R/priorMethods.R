@@ -24,7 +24,9 @@ setMethod(f = "[", signature = "Prior", definition=function(x, i, drop="missing"
 
             if(i == "dataNum"){return(x@dataNum)}else{}
             if(i == "fragL"){return(x@fragL)}else{}
+            if(i == "chrList"){return(x@chrList)}else{}
             if(i == "bowtieInfo"){return(x@bowtieInfo)}else{}
+            if(i == "bwaInfo"){return(x@bwaInfo)}else{}
             if(i == "csemDir"){return(x@csemDir)}else{}
             if(i == "outfileLoc"){return(x@outfileLoc)}else{}
             if(i == "prior"){return(x@prior)}else{}
@@ -69,6 +71,8 @@ setMethod(f = "[[", signature = "Prior", definition=function(x, i, drop="missing
   
   if(i == "dataNum"){return(x@dataNum)}else{}
   if(i == "fragL"){return(x@fragL)}else{}
+  if(i == "chrList"){return(x@chrList)}else{}
+  if(i == "bwaInfo"){return(x@bwaInfo)}else{}
   if(i == "bowtieInfo"){return(x@bowtieInfo)}else{}
   if(i == "csemDir"){return(x@csemDir)}else{}
   if(i == "outfileLoc"){return(x@outfileLoc)}else{}
@@ -346,7 +350,7 @@ setMethod("show", signature(object = "Prior"),
 setMethod(f="plot", signature = "Prior",  definition = function(x, y, ...){
   
   if(length(x@chipSAM) == 0){
-    stop("ChIP-seq is not available now. Please plot after priorGenerate process!")
+    stop("ChIP-seq alignment file(s) are not available now. Please plot after priorGenerate process!")
     
   }else{
     if(length(x@posLoc_bychr) == 0){
@@ -354,9 +358,9 @@ setMethod(f="plot", signature = "Prior",  definition = function(x, y, ...){
     }else{
       
       
-      outfile_chip <- x@chipSAM
+      chipSAM <- x@chipSAM
       outfileLoc <- x@outfileLoc
-      chipFileName <- gsub(".*/(.*).sam", "\\1", outfile_chip)
+      chipFileName <- gsub(".*/(.*).sam", "\\1", chipSAM)
       outfile_chip <- paste(chipFileName, ".sam", sep = "")
       dnaseThres <- x@dnaseThres
       dnaseKnots <- x@dnaseKnots
@@ -366,41 +370,43 @@ setMethod(f="plot", signature = "Prior",  definition = function(x, y, ...){
       posLoc_bychr <- vector('list', length(x@dnaseName))
       names(posLoc_bychr) <- x@dnaseName
       posLoc_bychr[[length(x@dnaseName)]] <- x@posLoc_bychr
+      
       #calculate averaged chip read counts according to object (dnase or histone information)
-      if(!file.exists((paste(outfileLoc,'/',names(posLoc_bychr)[1],'_',outfile_chipmean[1],sep='')))){
-        .chipMeanCounts(x, posLoc_bychr,rep(outfileLoc,length(outfile_chip)),outfile_chip,outfileLoc,outfile_chipmean)
+      if(!file.exists((paste(outfileLoc, '/', names(posLoc_bychr)[1], '_', outfile_chipmean[1], sep='')))){
+        .chipMeanCounts(x, posLoc_bychr, chipSAM, outfile_chip, outfileLoc, outfile_chipmean)
       }
-                                        #results are reported in outfile_chipmean
+     #results are reported in outfile_chipmean
       
 ####################figure generate######################
       
-      .fitPlot2=function(reps, dnaseThres, dnaseKnots, name, ylim, ...)
+      .fitPlot2 = function(reps, dnaseThres, dnaseKnots, name, ylim, ...)
         {
           par(mar = c(5, 5, 4, 2) + 0.1)
           
           for (i in 1:length(reps)) {
           
-            a = reps[[i]][2, ]/reps[[i]][1, ]
+            a <- reps[[i]][2, ]/reps[[i]][1, ]
             matplot(dnaseThres, t(a), pch = 20, cex = 0.5, ylab = "Average ChIP read count", xlab = "DNase read count", main=name, ylim=ylim, ...)
             
-            for (j in 1:length(dnaseKnots)) abline(v = dnaseKnots[j], col = "blue", lwd = 2)
-                                        #legend(x = "top", legend = c("Observed data", "Fitted value"),
-                                        #   col = c("black", "red"), lwd = c(1, 3), lty = c(0,
-                                        #      2), pch = c(1, NA), bty = "n")
+            for (j in 1:length(dnaseKnots))
+              abline(v = dnaseKnots[j], col = "blue", lwd = 2)
+              #legend(x = "top", legend = c("Observed data", "Fitted value"),
+              #   col = c("black", "red"), lwd = c(1, 3), lty = c(0,
+              #      2), pch = c(1, NA), bty = "n")
           }
         }
       
-                                        #read in mean chip counts accoding to each DNase or histone read counts
-      ylim=vector('list',length(outfile_chipmean))
+      #read in mean chip counts accoding to each DNase or histone read counts
+      ylim <- vector('list', length(outfile_chipmean))
       for(i in 1:length(outfile_chipmean))
-        ylim[[i]]=c(0,0)
-      reps=vector('list',length(posLoc_bychr))
+        ylim[[i]] <- c(0,0)
+      reps <- vector('list', length(posLoc_bychr))
       for(i in 1:length(posLoc_bychr)){
-        reps[[i]]=vector('list',length(outfile_chipmean))
+        reps[[i]] <- vector('list', length(outfile_chipmean))
         for(j in 1:length(outfile_chipmean)){
-          reps[[i]][[j]]=read.table(paste(outfileLoc,'/',names(posLoc_bychr)[i],'_',outfile_chipmean[j],sep=''))  #read in averaged Chip read counts
-          ylim[[j]][1]=min(c(ylim[[j]][1],min(unlist(reps[[i]][[j]][2,]/reps[[i]][[j]][1,]))))
-          ylim[[j]][2]=max(c(ylim[[j]][2],max(unlist(reps[[i]][[j]][2,]/reps[[i]][[j]][1,]))))
+          reps[[i]][[j]] <- read.table(paste(outfileLoc, '/', names(posLoc_bychr)[i], '_', outfile_chipmean[j], sep=''))  #read in averaged Chip read counts
+          ylim[[j]][1] <- min(c(ylim[[j]][1], min(unlist(reps[[i]][[j]][2,]/reps[[i]][[j]][1,]))))
+          ylim[[j]][2] <- max(c(ylim[[j]][2], max(unlist(reps[[i]][[j]][2,]/reps[[i]][[j]][1,]))))
           
                                         #find the min and max average chip counts
           
@@ -462,7 +468,9 @@ setReplaceMethod(f = "[", signature = "Prior", definition=function(x,i,value){
                  
             if(i == "dataNum"){x@dataNum <- value}else{}
             if(i == "fragL"){x@fragL <- value}else{}
+            if(i == "chrList"){x@chrList <- value}else{}
             if(i == "bowtieInfo"){x@bowtieInfo <- value}else{}
+            if(i == "bwaInfo"){x@bwaInfo <- value}else{}
             if(i == "csemDir"){x@csemDir <- value}else{}
             if(i == "outfileLoc"){x@outfileLoc <- value}else{}
             if(i == "prior"){x@prior <- value}else{}
@@ -506,7 +514,9 @@ setReplaceMethod(f = "[[", signature = "Prior", definition=function(x,i,value){
                  
             if(i == "dataNum"){x@dataNum <- value}else{}
             if(i == "fragL"){x@fragL <- value}else{}
+            if(i == "chrList"){x@chrList <- value}else{}
             if(i == "bowtieInfo"){x@bowtieInfo <- value}else{}
+            if(i == "bwaInfo"){x@bwaInfo <- value}else{}
             if(i == "csemDir"){x@csemDir <- value}else{}
             if(i == "outfileLoc"){x@outfileLoc <- value}else{}
             if(i == "prior"){x@prior <- value}else{}
@@ -547,8 +557,8 @@ setMethod(f="summary", signature = "Prior",  definition = function(object){
     cat(paste("Alignment Summary for DNase-seq Datasets ", x@dnaseName, ":\n", sep = ""))
     cat("***********************************************************************************\n")
     table <- matrix(c(AlignInfo$readNum, AlignInfo$readAlignedNum, AlignInfo$readAlignedRate, AlignInfo$readFailedNum, AlignInfo$readFailedRate, AlignInfo$AlignNum), ncol = 1)
-    colnames(table)<-c("Alignment Information")
-    rownames(table)<-c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
+    colnames(table) <- c("Alignment Information")
+    rownames(table) <- c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
     
     print(table) 
      
@@ -565,8 +575,8 @@ if(length(x@histoneAlign) != 0){
       
       cat("***********************************************************************************\n")
       table <- matrix(c(AlignInfo$readNum, AlignInfo$readAlignedNum, AlignInfo$readAlignedRate, AlignInfo$readFailedNum, AlignInfo$readFailedRate, AlignInfo$AlignNum), ncol = 1)
-      colnames(table)<-c("Alignment Information")
-      rownames(table)<-c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
+      colnames(table) <- c("Alignment Information")
+      rownames(table) <- c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
     
       print(table)
     
@@ -587,8 +597,8 @@ if(length(x@histoneAlign) != 0){
       cat("\n")      
       cat("***********************************************************************************\n")
       table <- matrix(c(AlignInfo$readNum, AlignInfo$readAlignedNum, AlignInfo$readAlignedRate, AlignInfo$readFailedNum, AlignInfo$readFailedRate, AlignInfo$AlignNum), ncol = 1)
-      colnames(table)<-c("Alignment Information")
-      rownames(table)<-c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
+      colnames(table) <- c("Alignment Information")
+      rownames(table) <- c("Number of reads processed:", "Number of reads with at least one reported alignment:", "Percentage of reads with at least one reported alignment(%):", "Number of reads failed to align:", "Percentage of reads failed to align(%):", "Total number of alignment reported:")
     
       print(table)
 
