@@ -45,7 +45,8 @@ priorProcess_DNase <- priorProcess(dnaseFile="DNase_partial.fastq",
 histoneFile=NULL, dnaseName="dnase", histoneName=NULL, fragL=200,
 AllocThres=900, chrList=c("chr22"), capping=0, outfileLoc="./",
 outfile="only_dnase", bowtieDir="./bowtie-1.1.1", bowtieIndex="./hg19",
-vBowtie=2, mBowtie=99, pBowtie=8, csemDir="./csem-2.3", saveFiles=TRUE)
+vBowtie=2, mBowtie=99, pBowtie=8, csemDir="./csem-2.3",
+picardDir=./picard.jar, saveFiles=TRUE)
 
 #When DNase-seq and Histone are both available:
 priorProcess_DNaseHistone <- priorProcess(dnaseFile="DNase_partial.fastq",
@@ -53,7 +54,7 @@ histoneFile=c("h2az_partial.fastq", "h3k4me1_partial.fastq"),
 dnaseName="dnase", histoneName=c("h2az", "h3k4me1"), fragL=200,
 AllocThres=900, chrList=c("chr22_partial"), capping=0,
 outfileLoc="./", outfile="dnase_hiistone", bowtieIndex="hg19",
-csemDir="./csem-2.3", bowtieDir="./bowtie-1.1.1", vBowtie=2,
+csemDir="./csem-2.3", picardDir=./picard.jar, bowtieDir="./bowtie-1.1.1", vBowtie=2,
 mBowtie=99, pBowtie=8, saveFiles=TRUE)
 
 #When DNase data not available:
@@ -61,8 +62,9 @@ priorHistone_init <- priorHistone_initial(histoneFile=c("h2az.fastq",
 "h3k4me1.fastq"), histoneName=c("h2az", "h3k4me1"), fragL=200,
 binSize=200, AllocThres=900, chrList=c("chr19", "chr22"), capping=0, o
 utfileLoc="./", chipFile=c("chip_rep1.fastq", "chip_rep2.fastq"),
-bowtieIndex="./hg19", csemDir="./csem-2.3", bowtieDir="./bowtie-1.1.1",
+bowtieIndex="./hg19", csemDir="./csem-2.3", picardDir=./picard.jar, bowtieDir="./bowtie-1.1.1",
 vBowtie=2, mBowtie=99, pBowtie=8, saveFiles=TRUE)
+
 #select one data from the marginal plot
 priorHistone_multi <- priorHistone_multi(priorHistone, dnaseIndex=1,
 outfileLoc="./", outfile="twodata_histone")

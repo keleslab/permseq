@@ -5,7 +5,8 @@
 priorHistone_init(histoneFile = NULL, histoneName = NULL, chipFile = NULL, fragL = 200,
 AllocThres = 900, chrList, capping = 0, outfileLoc = "./", 
 bowtieDir, bowtieIndex, vBowtie = 2, mBowtie = 99,
-pBowtie = 8, bwaDir, bwaIndex, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99, csemDir, saveFiles = TRUE)
+pBowtie = 8, bwaDir, bwaIndex, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99,
+csemDir, picardDir, saveFiles = TRUE)
 }
 \arguments{
 \item{histoneFile}{Input histone ChIP-seq file in fastq format. For faster results, sam
@@ -80,6 +81,7 @@ processor/core and all threads find alignments in paralle. Default value is 8.}
 
 
 \item{csemDir}{Directory where CSEM was installed. The default value is NULL.}
+\item{picardDir}{Directory where PICARD jar file is saved.}
 
 \item{saveFiles}{Option to save intermediate files created. Default set as TRUE.}
 
@@ -125,6 +127,7 @@ Other elements of the "Prior" include:
 \item{bwaInfo}{List of BWA related information: bwaDir, bwaIndex, nBWA,
   oBWA, tBWA, mBWA.}
 \item{csemDir}{Directory of CSEM given as a parameter.}
+\item{picardDir}{Directory where PICARD jar file is saved.}
 \item{chrom.ref}{Name of the file for chromosome info, given as a parameter.}
 \item{outfileLoc}{Directory where processed files are (given as an argument).}
 
@@ -155,6 +158,11 @@ Users can select from Bowtie and BWA to do the alignment by providing
 the corresponding index and leaving the other as default value NULL. If
 both indices are provided, the package will automatically use Bowtie to do the multi-mapping reads alignment. 
 
+Aligned sam file will go through filtering process to remove
+duplicates. By default, 'samtools rmdup -s' will be used to carry out
+such function. If user provides the PICARD jar path, PICARD will be
+used.
+
 \code{plot()}, \code{summary()}, \code{names()} and \code{print()}
 methods can be used to see the information contained in "Prior"
 object. To obtain the ChIP-seq (or Histone) alignment information from bowtie, use
@@ -166,7 +174,7 @@ object. To obtain the ChIP-seq (or Histone) alignment information from bowtie, u
 object = priorHistone_init(histoneFile = NULL, histoneName = NULL,
   chipFile, fragL, AllocThres = 900, chrList, capping = 0, outfileLoc = "./",
   bowtieDir,  bowtieIndex,  vBowtie = 2,
-  mBowtie = 99, pBowtie = 8, csemDir, saveFiles = TRUE)
+  mBowtie = 99, pBowtie = 8, csemDir, picardDir, saveFiles = TRUE)
 }
 }
 \author{

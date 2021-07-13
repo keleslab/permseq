@@ -1,4 +1,4 @@
-priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = NULL, fragL = 200, AllocThres = 900, chrList = NULL, capping = 0, outfileLoc = "./",  bowtieDir = NULL, bowtieIndex = NULL,  vBowtie = 2, mBowtie = 99, pBowtie = 8, bwaDir = NULL, bwaIndex = NULL, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99, csemDir = NULL, saveFiles = TRUE){
+priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = NULL, fragL = 200, AllocThres = 900, chrList = NULL, capping = 0, outfileLoc = "./",  bowtieDir = NULL, bowtieIndex = NULL,  vBowtie = 2, mBowtie = 99, pBowtie = 8, bwaDir = NULL, bwaIndex = NULL, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99, csemDir = NULL, picardDir = NULL, saveFiles = TRUE){
 
   if(length(chipFile)>1){
     message( "More than one ChIP-seq data detected: Replicates must be from the same TF (experiment). Otherwise, we recommend run different ChIP-seq data separtely.")
@@ -109,7 +109,7 @@ priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = 
 
   # Process each Histone data - align to the reference genome and give the bowtie summary information
   for(i in 1:length(histoneFile)){
-    link[[i]] <- .multihistoneProcess(histoneFile[i], fragL, AllocThres, chrList, chrom.ref, capping=0, outfileLoc = paste(outfileLoc, '/', histoneName[i], '/', sep=''), histoneName[i], bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, saveFiles)
+    link[[i]] <- .multihistoneProcess(histoneFile[i], fragL, AllocThres, chrList, chrom.ref, capping=0, outfileLoc = paste(outfileLoc, '/', histoneName[i], '/', sep=''), histoneName[i], bowtieIndex, csemDir, picardDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, saveFiles)
     chrList <- link[[i]][['chrList']]
     histoneFormat <- tolower(sub(".*\\.", "", histoneFile[i]))
     if(is.null(bowtieIndex) || histoneFormat %in% c("sam", "bam", "bed")){ 
@@ -150,6 +150,42 @@ priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = 
         chipAlign[[outfile_chip[i]]] <- NULL
         chipSAM[i] <- chipFile[i]
       }
+
+                      
+      ## Remove duplicates from SAM file
+      file.sam <- chipSAM[i]
+      filename <- gsub("\\.sam", "", chipSAM[i])
+      if(!is.null(picardDir)){
+          CMD <- "mkdir -p TMP_permseq"
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " SortSam I=", file.sam, " O=", filename, ".sort.sam VALIDATION_STRINGENCY=LENIENT SORT_ORDER=coordinate TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " MarkDuplicates I=", filename, ".sort.sam ", "O=", filename, ".nodup.sam METRICS_FILE=QCmetric VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true REMOVE_DUPLICATES=true TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " SortSam I=", filename, ".nodup.sam O=", filename, ".nodup.sort.sam VALIDATION_STRINGENCY=LENIENT SORT_ORDER=queryname TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- "rm -rf TMP_permseq"
+          system(CMD)
+
+
+      }else{
+          CMD <- paste(csemDir, "/sam/samtools view -Sb -h ", file.sam ," >", filename, ".tmp.bam", sep = "")
+          system(CMD)
+          CMD <- paste(csemDir, "/sam/samtools sort ", filename, ".tmp.bam ", filename, ".tmp.sort", sep = "")
+          system(CMD)
+          
+          CMD <- paste(csemDir, "/sam/samtools rmdup ", filename, ".tmp.sort.bam ", filename, ".tmp.nodup.bam", sep = "")
+          system(CMD)
+          CMD <- paste(csemDir, "/sam/samtools view -h ", filename, ".tmp.nodup.bam >", filename, ".tmp.nodup.sam", sep = "")
+          system(CMD)
+          CMD <- paste(csemDir, "/sam/samtools sort -n ", filename, ".tmp.nodup.sam ", filename, ".nodup.sort", sep = "")
+          system(CMD)
+                
+#                CMD <- paste("rm -rf ", filename, ".tmp*",  sep = "")
+#                system(CMD)
+      }
+      chipSAM[i] <- paste(filename, ".nodup.sort.sam", sep = "")
+      
     }
   }else{
     message( "Info: Aligning reads using BWA..." )
@@ -158,17 +194,48 @@ priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = 
       chipFormat <- tolower(sub(".*\\.", "", chipFile[i]))
       if(chipFormat == "fastq"){
       
-        system(paste(bwaDir, '/bwa aln -n ', nBWA, ' -o ', oBWA, ' -t ', tBWA, ' ', bwaIndex, ' ', chipFile[i], ' >', outfile_chip[i], '.sai', sep=''))
-        system(paste(bwaDir, '/bwa samse -n ', mBWA, ' ', bwaIndex, ' ', outfile_chip[i], '.sai', ' ', chipFile[i], ' | ', bwaDir, '/xa2multi.pl >', outfile_chip[i], '.sam', sep=''))
+          system(paste(bwaDir, '/bwa aln -n ', nBWA, ' -o ', oBWA, ' -t ', tBWA, ' ', bwaIndex, ' ', chipFile[i], ' >', outfile_chip[i], '.sai', sep=''))
+          system(paste(bwaDir, '/bwa samse -n ', mBWA, ' ', bwaIndex, ' ', outfile_chip[i], '.sai', ' ', chipFile[i], ' | ', bwaDir, '/xa2multi.pl >', outfile_chip[i], '.sam', sep=''))
         
-        chipSAM[i] <- paste(outfileLoc,'/',outfile_chip[i],'.sam',sep='')
-         }else{
+          chipSAM[i] <- paste(outfileLoc,'/',outfile_chip[i],'.sam',sep='')
+      }else{
            
            print(paste("ChIP-seq file ", outfile_chip[i], " is in SAM format. The preprocessed aligned SAM file should contain multi-mapping reads. Otherwise, please provide FASTQ format ChIP-seq file.", sep = ""))
            
-           chipSAM[i] <- chipFile[i]
-         }
-         chipAlign[[outfile_chip[i]]] <- NULL
+          chipSAM[i] <- chipFile[i]
+      }
+      chipAlign[[outfile_chip[i]]] <- NULL
+
+      ## Remove duplicates from SAM file
+      file.sam <- chipSAM[i]
+      filename <- gsub("\\.sam", "", chipSAM[i])
+      if(!is.null(picardDir)){
+          CMD <- "mkdir -p TMP_permseq"
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " SortSam I=", file.sam, " O=", filename, ".sort.sam VALIDATION_STRINGENCY=LENIENT SORT_ORDER=coordinate TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " MarkDuplicates I=", filename, ".sort.sam ", "O=", filename, ".nodup.sam METRICS_FILE=QCmetric VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true REMOVE_DUPLICATES=true TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- paste("java -Djava.io.tmpdir=TMP_permseq -jar ", picardDir, " SortSam I=", filename, ".nodup.sam O=", filename, ".nodup.sort.sam VALIDATION_STRINGENCY=LENIENT SORT_ORDER=queryname TMP_DIR=TMP_permseq", sep = "")
+          system(CMD)
+          CMD <- "rm -rf TMP_permseq"
+          system(CMD)
+
+      }else{
+          CMD <- paste(csemDir, "/sam/samtools view -Sb -h ", file.sam ," >", filename, ".tmp.bam", sep = "")
+          system(CMD)
+          CMD <- paste(csemDir, "/sam/samtools sort ", filename, ".tmp.bam ", filename, ".tmp.sort", sep = "")
+          system(CMD)
+          
+          CMD <- paste(csemDir, "/sam/samtools rmdup ", filename, ".tmp.sort.bam ", filename, ".tmp.nodup.bam", sep = "")
+          system(CMD)
+          CMD <- paste(csemDir, "/sam/samtools view -h ", filename, ".tmp.nodup.bam >", filename, ".nodup.sam", sep = "")
+          system(CMD)
+          CMD <- paste("rm -rf ", filename, ".tmp*",  sep = "")
+          system(CMD)
+      }
+      chipSAM[i] <- paste(filename, ".nodup.sam", sep = "")
+      
     }
   }
   
@@ -180,7 +247,7 @@ priorHistone_init = function(histoneFile = NULL, histoneName = NULL, chipFile = 
   for(i in 1:length(histoneName)){
     link.temp[[i]] <- link[[i]][['posLoc_bychr']]
   }
-  .chipMeanCounts(prior = NULL, link.temp, chipSAM, paste(outfile_chip, '.sam', sep=''), outfileLoc, outfile_chipmean)
+  .chipMeanCounts(prior = NULL, link.temp, chipSAM, paste(outfile_chip, '.nodup.sam', sep=''), outfileLoc, outfile_chipmean)
 
   #prepare for the plot to select the best histone to be used as dnase data
   ylim <- vector('list', length(chipFile))

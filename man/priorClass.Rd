@@ -40,6 +40,7 @@ data. After alignment, positions which have the same DNase-seq read count are cl
   directory where the BWA is installed, BWA parameters values for "bwa aln -n
   -o -t" and "bwa samse -n".}
 \item{csemDir}{Directory where CSEM was installed.}
+\item{picardDir}{Directory where PICARD jar file is saved.}
 \item{outfileLoc}{Directory to store output files.}
 \item{prior}{Location where the prior files are saved.}
 \item{chrom.ref}{Name of the file for chromosome info. In this

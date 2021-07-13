@@ -21,7 +21,7 @@ setClass("Prior",representation=representation(
                    chipSAM = "OptionalCharacter",
                    chipAllocate = "OptionalCharacter",
                    chipUni = "OptionalCharacter",
-                   chipFormat = "OptionalCharacter",
+                   chipAlignFormat = "OptionalCharacter",
 
                    dataNum = "OptionalNumeric",
                    fragL = "OptionalNumeric",
@@ -29,6 +29,7 @@ setClass("Prior",representation=representation(
                    bwaInfo = "OptionalList",
                    bowtieInfo = "OptionalList",
                    csemDir = "OptionalCharacter",
+                   picardDir = "OptionalCharacter",
                    outfileLoc = "OptionalCharacter",
                    prior = "OptionalCharacter",
                    chrom.ref = "OptionalCharacter"

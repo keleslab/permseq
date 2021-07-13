@@ -1,6 +1,7 @@
 Package: permseq
 Type: Package
-Title: Mapping protein-DNA interactions in highly repetitive regions of the genomes with prior-enhanced read mapping
+Title: Mapping protein-DNA interactions in highly repetitive regions of
+        the genomes with prior-enhanced read mapping
 Version: 0.2.0
 Date: 2016-11-01
 Author: Xin Zeng, M. Constanza Rojo-Alfaro, Ye Zheng, Sunduz Keles
@@ -12,3 +13,5 @@ LazyLoad: yes
 biocViews: ChIPseq, Sequencing, Transcription, Multi-read
 SystemRequirements: Perl
 Suggests: knitr
+NeedsCompilation: no
+Packaged: 2017-02-12 02:11:58 UTC; yezheng

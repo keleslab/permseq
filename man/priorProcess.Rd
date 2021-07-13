@@ -7,7 +7,7 @@ priorProcess(dnaseFile = NULL, histoneFile = NULL, dnaseName
 = 900, chrList = NULL, capping = 0, outfileLoc = "./",
 outfile = "dnase_histone", bowtieDir, bowtieIndex, vBowtie = 2,
 mBowtie = 99, pBowtie = 8, bwaDir, bwaIndex, nBWA = 2, oBWA = 1, tBWA =
-8, mBWA = 99, csemDir, chrom.ref, saveFiles = TRUE)
+8, mBWA = 99, csemDir, picardDir, chrom.ref, saveFiles = TRUE)
 }
 \arguments{
 \item{dnaseFile}{DNase-seq file in fastq format. For faster results, sam
@@ -93,6 +93,8 @@ processor/core and all threads find alignments in paralle. Default value is 8.}
 
 \item{csemDir}{Directory where CSEM was installed.}
 
+\item{picardDir}{Directory where PICARD jar file is saved.}
+
 \item{chrom.ref}{reference genome index summary information. First line
   is the number of chromosomes in the index, either bwaIndex or
   bowtieIndex, including chrM. Second line is the size of each
@@ -127,6 +129,7 @@ partitions the whole genome into multiple segments.}
 \item{bwaInfo}{List of BWA related information: bwaDir, bwaIndex, nBWA,
   oBWA, tBWA, mBWA.}
 \item{csemDir}{Directory where CSEM was installed.}
+\item{picardDir}{Directory where PICARD jar file is saved.}
 \item{outfileLoc}{Directory to store output files.}
 \item{chrom.ref}{Name of the file for chromosome info.}
 }
@@ -155,6 +158,10 @@ Users can select from Bowtie and BWA to do the alignment by providing
 the corresponding index and leaving the other as default value NULL. If
 both indices are provided, the package will automatically use Bowtie to do the multi-mapping reads alignment. 
 
+DNase-seq and/or Histone aligned sam file will go through filtering
+process to remove duplicates. By default, 'samtools rmdup -s' function
+will be used. PICARD jar can take over if PICARD jar path is provided.
+
 \code{plot()}, \code{summary()}, \code{names()} and \code{print()}
 methods can be used to see the information contained in "Prior"
 object. To obtain the ChIP-drq alignment information from bowtie, use \code{summary()}.
@@ -165,7 +172,7 @@ object. To obtain the ChIP-drq alignment information from bowtie, use \code{summ
 \dontrun{
 object = priorProcess(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase',
 histoneName = NULL, fragL = 200, chrList, capping = 0, outfileLoc = "./",
-outfile, bowtieIndex, csemDir, chrom.ref, saveFiles = FALSE)
+outfile, bowtieIndex, csemDir, picardDir, chrom.ref, saveFiles = FALSE)
 }
 }
 \author{

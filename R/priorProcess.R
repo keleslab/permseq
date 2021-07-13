@@ -1,4 +1,4 @@
-priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase', histoneName = NULL, fragL = 200, AllocThres = 900, chrList = NULL, capping = 0, outfileLoc = "./", outfile = "dnase_histone", bowtieDir = NULL, bowtieIndex = NULL, vBowtie = 2, mBowtie = 99, pBowtie = 8, bwaDir = NULL, bwaIndex = NULL, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99, csemDir = NULL, chrom.ref=NULL, saveFiles = TRUE){
+priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase', histoneName = NULL, fragL = 200, AllocThres = 900, chrList = NULL, capping = 0, outfileLoc = "./", outfile = "dnase_histone", bowtieDir = NULL, bowtieIndex = NULL, vBowtie = 2, mBowtie = 99, pBowtie = 8, bwaDir = NULL, bwaIndex = NULL, nBWA = 2, oBWA = 1, tBWA = 8, mBWA = 99, csemDir = NULL, picardDir = NULL, chrom.ref=NULL, saveFiles = TRUE){
 
 
   #Refine the input parameters -- NULL NA numeric ""
@@ -106,7 +106,7 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
   # if only one DNase data
   if(is.null(histoneFile) & !is.null(dnaseFile)){ 
     # Process DNase data
-    dnaseObject <- .dnaseProcess(dnaseFile, fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', dnaseName, '/', sep=''), paste(dnaseName, '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, saveFiles)
+    dnaseObject <- .dnaseProcess(dnaseFile, fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', dnaseName, '/', sep=''), paste(dnaseName, '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, picardDir, saveFiles)
     chrList <- dnaseObject[['chrList']]
     chrom.ref <- dnaseObject[['chrom.ref']]
     if( dnaseFormat %in% c("sam", "bam", "bed") || is.null(bowtieIndex)){
@@ -126,6 +126,7 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
                bowtieInfo = bowtieInfo,
                bwaInfo = bwaInfo,
                csemDir = csemDir,          
+               picardDir = picardDir,
                outfileLoc = outfileLoc,             
                chrom.ref = chrom.ref))
     
@@ -133,7 +134,7 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
   }else if(!is.null(histoneFile) & !is.null(dnaseFile)){# If DNase and Histone data
     histoneNum <- length(histoneFile)
     # Process DNase data
-    dnaseObject <- .dnaseProcess(dnaseFile, fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', dnaseName, '/', sep=''), paste(dnaseName, '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, saveFiles)
+    dnaseObject <- .dnaseProcess(dnaseFile, fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', dnaseName, '/', sep=''), paste(dnaseName, '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, picardDir, saveFiles)
     chrList <- dnaseObject[['chrList']]
     chrom.ref <- dnaseObject[['chrom.ref']]
     dnaseFormat <- tolower(sub(".*\\.", "", dnaseFile))
@@ -149,7 +150,7 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
     names(link) <- histoneName
     histoneAlign <- list()
     for(i in 1:length(histoneFile)){
-      link[[i]] <- .histoneProcess(histoneFile[i], fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', histoneName[i], '/', sep=''), paste(histoneName[i], '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, saveFiles)
+      link[[i]] <- .histoneProcess(histoneFile[i], fragL, AllocThres, chrList, chrom.ref, capping, outfileLoc = paste(outfileLoc, '/', histoneName[i], '/', sep=''), paste(histoneName[i], '_', outfile, sep=''), bowtieIndex, csemDir, bowtieDir, vBowtie, mBowtie, pBowtie, bwaDir, bwaIndex, nBWA, oBWA, tBWA, mBWA, picardDir, saveFiles)
       
       histoneFormat <- tolower(sub(".*\\.", "", histoneFile[i]))
       if(histoneFormat %in% c("sam", "bam", "bed") || is.null(bowtieIndex)){
@@ -197,7 +198,8 @@ priorProcess = function(dnaseFile = NULL, histoneFile = NULL, dnaseName = 'dnase
                fragL = fragL,                 
                bowtieInfo = bowtieInfo,
                bwaInfo = bwaInfo,
-               csemDir = csemDir,                 
+               csemDir = csemDir,
+               picardDir = picardDir,
                outfileLoc = outfileLoc,             
                chrom.ref = chrom.ref))
       
